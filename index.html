@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,700;1,800;1,900&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --dark:    #050810;
+      --bg2:     #0d1117;
+      --bg3:     #161b22;
+      --border:  #21262d;
+      --text:    #e6edf3;
+      --muted:   #8b949e;
+      --blue:    #58a6ff;
+      --purple:  #bc8cff;
+      --ease:    0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      /* warm palette */
+      --warm:    #c4c0b8;
+      --card-bg: #ebe7e0;
+      --orange:  #e0711a;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--dark); color: var(--text); overflow-x: hidden; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--dark); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* ═══ NAVBAR ═══ */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      padding: 22px 0; transition: all var(--ease);
+    }
+    .navbar.scrolled {
+      background: rgba(5,8,16,0.88); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border); padding: 14px 0;
+    }
+    .navbar-inner {
+      max-width: 1100px; margin: 0 auto; padding: 0 32px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo { font-size: 18px; font-weight: 800; color: var(--text); text-decoration: none; letter-spacing: -0.5px; }
+    .logo em { color: var(--blue); font-style: normal; }
+    .nav-links { display: flex; gap: 28px; list-style: none; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 500; transition: color var(--ease); }
+    .nav-links a:hover { color: var(--text); }
+
+    /* ═══ HERO ═══ */
+    #hero {
+      position: relative; width: 100%; height: 100svh; min-height: 600px;
+      background: var(--dark); overflow: hidden;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-end; padding-bottom: 9vh;
+    }
+    #hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+    .hero-ui { position: relative; z-index: 10; text-align: center; max-width: 680px; padding: 0 24px; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(88,166,255,.1); border: 1px solid rgba(88,166,255,.25);
+      border-radius: 100px; padding: 5px 16px;
+      font-size: 12px; font-weight: 600; letter-spacing: .5px;
+      color: var(--blue); margin-bottom: 20px; animation: fadeUp .8s .2s both;
+    }
+    .badge-dot { width: 6px; height: 6px; background: var(--blue); border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.5)} }
+    .hero-role { font-size: clamp(13px,1.8vw,17px); font-weight: 600; color: var(--purple); margin-bottom: 14px; letter-spacing: 1px; animation: fadeUp .8s .4s both; }
+    .hero-desc  { font-size: 15px; color: var(--muted); line-height: 1.85; margin-bottom: 32px; animation: fadeUp .8s .6s both; }
+    .hero-btns  { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; animation: fadeUp .8s .8s both; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 26px; border-radius: 8px; font-size: 14px; font-weight: 600; text-decoration: none; cursor: pointer; border: none; transition: all var(--ease); font-family: 'Inter', sans-serif; }
+    .btn-primary { background: var(--blue); color: #050810; }
+    .btn-primary:hover { filter: brightness(1.15); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(88,166,255,.3); }
+    .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-outline:hover { border-color: var(--blue); color: var(--blue); transform: translateY(-2px); }
+
+    .scroll-hint { position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; flex-direction: column; align-items: center; gap: 8px; color: rgba(139,148,158,.6); font-size: 9px; font-weight: 700; letter-spacing: 3px; animation: fadeUp 1s 2s both; }
+    .scroll-mouse { width: 20px; height: 32px; border: 1.5px solid rgba(139,148,158,.4); border-radius: 10px; position: relative; }
+    .scroll-mouse::after { content: ''; position: absolute; top: 6px; left: 50%; transform: translateX(-50%); width: 3px; height: 7px; background: rgba(139,148,158,.5); border-radius: 2px; animation: scrollDot 1.6s infinite ease-in-out; }
+    @keyframes scrollDot { 0%{opacity:1;top:6px} 100%{opacity:0;top:16px} }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+    /* ═══ ABOUT ═══ */
+    #about-sec { background: var(--dark); }
+    .section-wrap { max-width: 1100px; margin: 0 auto; padding: 96px 32px; }
+    .section-label { font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--blue); margin-bottom: 10px; }
+    .section-title { font-size: clamp(26px,4vw,38px); font-weight: 800; letter-spacing: -1px; margin-bottom: 14px; }
+    .divider { border: none; border-top: 1px solid var(--border); max-width: 1100px; margin: 0 auto; }
+
+    .about-grid { display: grid; grid-template-columns: 280px 1fr; gap: 64px; align-items: center; }
+    .about-avatar { width: 100%; aspect-ratio: 1; background: var(--bg3); border: 1px solid var(--border); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 80px; position: relative; overflow: hidden; }
+    .about-avatar::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(88,166,255,.07) 0%, rgba(188,140,255,.07) 100%); }
+    .about-text h3 { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
+    .about-text p  { font-size: 15px; color: var(--muted); line-height: 1.9; margin-bottom: 14px; }
+    .about-stats   { display: flex; gap: 36px; margin-top: 28px; }
+    .stat-num   { font-size: 28px; font-weight: 800; color: var(--blue); letter-spacing: -1px; }
+    .stat-label { font-size: 12px; color: var(--muted); font-weight: 500; margin-top: 2px; }
+
+    /* ═══════════════════════════════════════════════════
+       WORKS  —  full-width warm gray, scroll-driven cards
+    ═══════════════════════════════════════════════════ */
+    #works-sec {
+      position: relative;
+      /* height set by JS: N × 80vh + 20vh */
+    }
+
+    /* Sticky viewport */
+    .wk-sticky {
+      position: sticky;
+      top: 0;
+      height: 100svh;
+      overflow: hidden;
+      background: var(--warm);
+    }
+
+    /* ── Huge faded counter (background layer) ── */
+    .wk-bg-ctr {
+      position: absolute;
+      top: 42%;
+      left: 28%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      align-items: baseline;
+      gap: 0.12em;
+      font-size: clamp(120px, 18vw, 210px);
+      font-weight: 900;
+      letter-spacing: -0.07em;
+      color: rgba(0,0,0,0.09);
+      pointer-events: none;
+      user-select: none;
+      z-index: 1;
+      white-space: nowrap;
+      line-height: 0.85;
+      transition: opacity 0.4s;
+    }
+    .wk-bg-dash { font-size: 0.6em; font-weight: 200; letter-spacing: 0; margin: 0 0.05em; }
+
+    /* ── Card canvas (full width behind UI) ── */
+    .wk-canvas {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    /* ── Card wrapper (absolute within canvas) ── */
+    .wk-card-wrap {
+      position: absolute;
+      /* transition applied inline for perf */
+    }
+
+    /* ── Card visual ── */
+    .wk-card {
+      width: 228px;
+      background: var(--card-bg);
+      border-radius: 11px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 14px 22px 52px rgba(0,0,0,0.32), 3px 5px 14px rgba(0,0,0,0.18);
+    }
+    .card-top   { display: flex; justify-content: space-between; align-items: flex-start; padding: 12px 12px 6px; flex-shrink: 0; }
+    .card-num   { display: flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 800; color: var(--orange); letter-spacing: .5px; }
+    .card-ctag  { font-size: 9px; font-weight: 700; color: #888; letter-spacing: .8px; border: 1px solid #bbb; padding: 2px 6px; border-radius: 3px; background: rgba(255,255,255,0.45); }
+    .card-img   { flex: 1; min-height: 140px; display: flex; align-items: center; justify-content: center; font-size: 46px; margin: 0 10px; border-radius: 7px; background: #ddd8d0; }
+    .card-bot   { padding: 8px 12px 11px; flex-shrink: 0; }
+    .card-title { font-style: italic; font-weight: 900; font-size: 15px; color: #1a1a1a; letter-spacing: -.4px; margin-bottom: 4px; }
+    .card-tags  { font-size: 8px; color: #999; letter-spacing: .6px; margin-bottom: 6px; }
+    .card-bc    { width: 100%; height: 24px; overflow: hidden; }
+
+    /* ── Top bar (above cards) ── */
+    .wk-topbar {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      padding: 26px 36px 0;
+      z-index: 20;
+      pointer-events: none;
+    }
+    .wk-sec-label { font-size: 12px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(0,0,0,0.3); }
+    .wk-sec-cat   { font-size: 12px; font-weight: 600; color: rgba(0,0,0,0.22); }
+
+    /* ── Right side: minimal project list (NO dark bg) ── */
+    .wk-side {
+      position: absolute;
+      right: 0; top: 0; bottom: 0;
+      width: 38%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 80px 44px 80px 20px;
+      z-index: 20;
+    }
+    .wk-side-title {
+      font-size: 10px; font-weight: 700; letter-spacing: 3px;
+      text-transform: uppercase; color: rgba(0,0,0,0.25);
+      margin-bottom: 16px; padding-bottom: 12px;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+    .wk-list { list-style: none; }
+    .wk-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: all 0.2s;
+      pointer-events: all;
+    }
+    .wk-item-l { display: flex; align-items: center; gap: 9px; }
+    .wk-item-icon {
+      font-size: 10px; color: rgba(0,0,0,0.75);
+      opacity: 0; width: 13px; flex-shrink: 0;
+      transition: opacity .2s;
+    }
+    .wk-item.active .wk-item-icon { opacity: 1; }
+    .wk-item-name {
+      font-size: 14px; font-weight: 500;
+      color: rgba(0,0,0,0.32);
+      transition: all .2s;
+    }
+    .wk-item.active .wk-item-name,
+    .wk-item:hover  .wk-item-name {
+      color: rgba(0,0,0,0.85); font-weight: 700;
+    }
+    .wk-item-tags { font-size: 10px; color: rgba(0,0,0,0.22); text-align: right; line-height: 1.4; }
+    .wk-item-dot  { width: 5px; height: 5px; border-radius: 50%; background: rgba(0,0,0,0.25); flex-shrink: 0; }
+    .wk-item.active .wk-item-dot  { background: var(--orange); }
+    .wk-item:hover  .wk-item-dot  { background: rgba(0,0,0,0.5); }
+
+    /* ── Bottom bar (active project info + dot progress) ── */
+    .wk-bottom {
+      position: absolute;
+      bottom: 0; left: 0; right: 40%;
+      padding: 22px 36px 26px;
+      z-index: 20;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+    }
+    .wk-act-name {
+      font-size: clamp(20px, 2.8vw, 34px);
+      font-weight: 900; font-style: italic;
+      color: rgba(0,0,0,0.78);
+      letter-spacing: -0.8px;
+      transition: opacity .22s, transform .22s;
+    }
+    .wk-act-tags {
+      font-size: 11px; color: rgba(0,0,0,0.38);
+      margin-top: 4px; letter-spacing: .4px;
+    }
+    /* Dot progress */
+    .wk-dots {
+      display: flex; gap: 7px; align-items: center;
+      padding-bottom: 4px;
+    }
+    .wk-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: rgba(0,0,0,0.18);
+      cursor: pointer; pointer-events: all;
+      transition: all .3s;
+    }
+    .wk-dot.lit { background: rgba(0,0,0,0.75); transform: scale(1.45); }
+
+    /* ═══ FOOTER ═══ */
+    footer { background: var(--dark); border-top: 1px solid var(--border); padding: 28px; text-align: center; color: var(--muted); font-size: 12px; }
+
+    /* ═══ SCROLL REVEAL ═══ */
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity .65s var(--ease), transform .65s var(--ease); }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ═══ RESPONSIVE ═══ */
+    @media (max-width: 900px) {
+      .wk-side { width: 46%; padding: 60px 24px 60px 12px; }
+      .wk-bottom { right: 48%; }
+    }
+    @media (max-width: 768px) {
+      .about-grid { grid-template-columns: 1fr; }
+      .about-avatar { max-width: 180px; margin: 0 auto; font-size: 56px; }
+      .nav-links { display: none; }
+      .wk-side { display: none; }
+      .wk-bottom { right: 0; }
+      .wk-bg-ctr { left: 50%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ NAVBAR ═══ -->
+<nav class="navbar" id="navbar">
+  <div class="navbar-inner">
+    <a href="#hero" class="logo" id="nav-logo">K<em>.</em></a>
+    <ul class="nav-links">
+      <li><a href="#about-sec">About</a></li>
+      <li><a href="#works-sec">Works</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section id="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-ui">
+    <div class="hero-badge">
+      <div class="badge-dot"></div>
+      <span id="hero-badge-text">Open to Work</span>
+    </div>
+    <p class="hero-role" id="hero-role">Web Developer</p>
+    <p class="hero-desc" id="hero-desc">ユーザーに価値を届けるプロダクト作りに情熱を注いでいます。</p>
+    <div class="hero-btns">
+      <a href="#works-sec" class="btn btn-primary">🚀 Works を見る</a>
+      <a href="#about-sec" class="btn btn-outline">👋 About</a>
+    </div>
+  </div>
+  <div class="scroll-hint"><div class="scroll-mouse"></div>SCROLL</div>
+</section>
+
+<!-- ═══ ABOUT ═══ -->
+<section id="about-sec">
+  <div class="section-wrap">
+    <p class="section-label reveal">About</p>
+    <h2 class="section-title reveal">自己紹介</h2>
+    <div class="about-grid">
+      <div class="about-avatar reveal" id="about-avatar">👨‍💻</div>
+      <div class="about-text reveal">
+        <h3 id="about-greeting">Hello!</h3>
+        <p id="about-p1"></p>
+        <p id="about-p2"></p>
+        <div class="about-stats" id="about-stats"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ═══ WORKS ═══ -->
+<section id="works-sec">
+  <div class="wk-sticky" id="wk-sticky">
+
+    <!-- ① Faded giant counter in background -->
+    <div class="wk-bg-ctr" id="wk-bg-ctr">
+      <span id="wk-bg-cur">01</span>
+      <span class="wk-bg-dash">—</span>
+      <span id="wk-bg-tot">06</span>
+    </div>
+
+    <!-- ② Card canvas -->
+    <div class="wk-canvas" id="wk-canvas"></div>
+
+    <!-- ③ Top bar -->
+    <div class="wk-topbar">
+      <span class="wk-sec-label">Works _</span>
+      <span class="wk-sec-cat" id="wk-top-cat">Design.</span>
+    </div>
+
+    <!-- ④ Right: minimal list (no dark bg) -->
+    <div class="wk-side">
+      <div class="wk-side-title">Select Project</div>
+      <ul class="wk-list" id="wk-list"></ul>
+    </div>
+
+    <!-- ⑤ Bottom: active name + dot nav -->
+    <div class="wk-bottom">
+      <div>
+        <div class="wk-act-name" id="wk-act-name"></div>
+        <div class="wk-act-tags" id="wk-act-tags"></div>
+      </div>
+      <div class="wk-dots" id="wk-dots"></div>
+    </div>
+  </div>
+</section>
+
+<footer><p id="footer-copy">© 2025 Your Name ✦</p></footer>
+
+<script>
+/* ══════════════════════════════════════════════════
+   CONFIG
+══════════════════════════════════════════════════ */
+const MY = {
+  name:         "Your Name",
+  particleText: "KEITA",
+  role:         "Web Developer",
+  badge:        "Open to Work",
+  avatar:       "👨‍💻",
+  about: [
+    "こんにちは！私はWebエンジニアとして、ユーザーに価値を届けるプロダクト作りに情熱を注いでいます。",
+    "フロントエンドを中心に、バックエンドからインフラまで幅広く対応できます。新しい技術へのキャッチアップが得意です。",
+  ],
+  stats: [
+    { num: "3+",  label: "Years Exp." },
+    { num: "20+", label: "Projects"   },
+    { num: "5",   label: "Clients"    },
+  ],
+  works: [
+    { emoji:"🛒", title:"ECサイト",         tags:["Design","FE Dev"],        bg:"linear-gradient(135deg,#f5ede0,#e8d8c0)" },
+    { emoji:"📊", title:"ダッシュボード",   tags:["Design","FE Dev"],        bg:"linear-gradient(135deg,#dde8f5,#c8dced)" },
+    { emoji:"💬", title:"チャットアプリ",   tags:["FE Dev"],                  bg:"linear-gradient(135deg,#f0e8f5,#dccded)" },
+    { emoji:"🎨", title:"ブランディング",   tags:["Branding","Design"],      bg:"linear-gradient(135deg,#f5f0e0,#ede5cc)" },
+    { emoji:"📱", title:"モバイルアプリ",   tags:["Design","FE Dev"],        bg:"linear-gradient(135deg,#e0f5ee,#cceedd)" },
+    { emoji:"🌐", title:"コーポレートサイト", tags:["Design","FE Dev"],      bg:"linear-gradient(135deg,#e8e0f5,#d4ccee)" },
+  ],
+};
+
+/* ══════════════════════════════════════════════════
+   Card slot positions & fly-in origins
+══════════════════════════════════════════════════ */
+// top / left in %, rotation in deg
+const SLOTS = [
+  { t:  8, l:  2, r: -13 },
+  { t: 32, l: 20, r:   9 },
+  { t:  4, l: 38, r: -21 },
+  { t: 50, l:  5, r:  16 },
+  { t: 22, l: 46, r:  -7 },
+  { t: 56, l: 27, r:  22 },
+];
+const FLY = [
+  'translate(-110vw,-5vh)',
+  'translate(-6vw,118vh)',
+  'translate(88vw,-118vh)',
+  'translate(-102vw,44vh)',
+  'translate(118vw,-12vh)',
+  'translate(8vw,118vh)',
+];
+
+/* ══════════════════════════════════════════════════
+   Barcode SVG generator
+══════════════════════════════════════════════════ */
+function barcode(seed, w, h) {
+  let n = 0;
+  for (let i = 0; i < seed.length; i++) n = (Math.imul(31,n) + seed.charCodeAt(i)) | 0;
+  const rng = () => { n = (Math.imul(1664525,n) + 1013904223)|0; return (n>>>0)/0xffffffff; };
+  let svg = '', x = 0;
+  while (x < w) {
+    const bw = Math.ceil(rng()*3)+1, gap = Math.ceil(rng()*3)+1;
+    svg += `<rect x="${x}" y="0" width="${bw}" height="${h}" fill="#2a2a2a"/>`;
+    x += bw + gap;
+  }
+  return `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">${svg}</svg>`;
+}
+
+/* ══════════════════════════════════════════════════
+   DOM injection
+══════════════════════════════════════════════════ */
+function injectContent() {
+  document.title = `${MY.name} — Portfolio`;
+  const first = MY.name.split(' ')[0];
+  document.getElementById('nav-logo').innerHTML = `${first}<em>.</em>`;
+  document.getElementById('hero-badge-text').textContent = MY.badge;
+  document.getElementById('hero-role').textContent = MY.role;
+  document.getElementById('hero-desc').textContent = MY.about[0];
+  document.getElementById('about-avatar').textContent = MY.avatar;
+  document.getElementById('about-greeting').textContent = `Hello, I'm ${MY.name} 👋`;
+  document.getElementById('about-p1').textContent = MY.about[0];
+  document.getElementById('about-p2').textContent = MY.about[1] || '';
+  document.getElementById('footer-copy').textContent = `© ${new Date().getFullYear()} ${MY.name} ✦`;
+
+  const statsEl = document.getElementById('about-stats');
+  MY.stats.forEach(s => {
+    const d = document.createElement('div');
+    d.innerHTML = `<div class="stat-num">${s.num}</div><div class="stat-label">${s.label}</div>`;
+    statsEl.appendChild(d);
+  });
+}
+
+/* ══════════════════════════════════════════════════
+   WORKS — scroll-driven card accumulation
+══════════════════════════════════════════════════ */
+let wkActive = 0;
+
+function buildCardEl(work, idx) {
+  const num  = String(idx+1).padStart(2,'0');
+  const tag  = work.tags[0].toUpperCase();
+  const tags = work.tags.map(t=>`[${t.toUpperCase()}]`).join(' ');
+  const bc   = barcode(work.title, 204, 24);
+  const div  = document.createElement('div');
+  div.className = 'wk-card';
+  div.innerHTML = `
+    <div class="card-top">
+      <div class="card-num">▲ ${num}</div>
+      <div class="card-ctag">[${tag}]</div>
+    </div>
+    <div class="card-img" style="background:${work.bg}">${work.emoji}</div>
+    <div class="card-bot">
+      <div class="card-title">${work.title}</div>
+      <div class="card-tags">${tags}</div>
+      <div class="card-bc">${bc}</div>
+    </div>`;
+  return div;
+}
+
+function showCard(i, isNewest) {
+  const wrap = document.getElementById(`ww${i}`);
+  if (!wrap) return;
+  const s = SLOTS[i];
+  wrap.style.opacity   = isNewest ? '1' : '0.72';
+  wrap.style.transform = `translate(${s.l}%, ${s.t}%) rotate(${s.r}deg)`;
+  wrap.style.zIndex    = isNewest ? '15' : String(4 + i);
+  wrap.style.filter    = isNewest ? 'none' : 'brightness(0.9)';
+}
+
+function hideCard(i) {
+  const wrap = document.getElementById(`ww${i}`);
+  if (!wrap) return;
+  const s = SLOTS[i];
+  wrap.style.opacity   = '0';
+  wrap.style.transform = `${FLY[i]} rotate(${s.r}deg)`;
+  wrap.style.zIndex    = String(4 + i);
+  wrap.style.filter    = 'none';
+}
+
+function setActive(idx) {
+  wkActive = idx;
+  const work = MY.works[idx];
+  const n = String(idx+1).padStart(2,'0');
+
+  // Background counter
+  document.getElementById('wk-bg-cur').textContent = n;
+
+  // Top category
+  document.getElementById('wk-top-cat').textContent = (work.tags[0] || 'Design') + '.';
+
+  // Bottom info — animate out → in
+  const nameEl = document.getElementById('wk-act-name');
+  const tagsEl = document.getElementById('wk-act-tags');
+  nameEl.style.opacity = '0'; nameEl.style.transform = 'translateY(8px)';
+  setTimeout(() => {
+    nameEl.textContent = work.title;
+    tagsEl.textContent = work.tags.map(t => `// ${t}`).join(' ');
+    nameEl.style.opacity = ''; nameEl.style.transform = '';
+  }, 200);
+
+  // List highlight
+  document.querySelectorAll('.wk-item').forEach((li, i) => li.classList.toggle('active', i === idx));
+
+  // Dots
+  document.querySelectorAll('.wk-dot').forEach((d, i) => d.classList.toggle('lit', i === idx));
+}
+
+function applyDisplay(target) {
+  const N = MY.works.length;
+  target = Math.max(0, Math.min(N-1, target));
+  for (let i = 0; i < N; i++) {
+    if (i <= target) showCard(i, i === target);
+    else             hideCard(i);
+  }
+  setActive(target);
+}
+
+function scrollToWork(idx) {
+  const sec = document.getElementById('works-sec');
+  const top = sec.getBoundingClientRect().top + window.scrollY;
+  window.scrollTo({ top: top + idx * window.innerHeight * 0.8, behavior: 'smooth' });
+}
+
+function initWorks() {
+  const N   = MY.works.length;
+  const sec = document.getElementById('works-sec');
+  sec.style.height = `${N * 80 + 20}vh`;
+
+  document.getElementById('wk-bg-tot').textContent = String(N).padStart(2,'0');
+
+  // Build card wrappers (all hidden initially)
+  const canvas = document.getElementById('wk-canvas');
+  MY.works.forEach((work, i) => {
+    const s    = SLOTS[i];
+    const wrap = document.createElement('div');
+    wrap.className = 'wk-card-wrap';
+    wrap.id        = `ww${i}`;
+    // Start in fly-in position (hidden)
+    wrap.style.cssText = `
+      top: 0; left: 0;
+      opacity: 0;
+      transform: ${FLY[i]} rotate(${s.r}deg);
+      z-index: ${4+i};
+      transition: transform 0.88s cubic-bezier(0.16,1,0.3,1), opacity 0.55s ease, filter 0.3s;
+    `;
+    wrap.appendChild(buildCardEl(work, i));
+    canvas.appendChild(wrap);
+  });
+
+  // Build project list
+  const list = document.getElementById('wk-list');
+  MY.works.forEach((work, i) => {
+    const li   = document.createElement('li');
+    li.className = 'wk-item' + (i === 0 ? ' active' : '');
+    const tagsStr = work.tags.map(t => `// ${t}`).join(' ');
+    li.innerHTML = `
+      <div class="wk-item-l">
+        <span class="wk-item-icon">✦</span>
+        <span class="wk-item-name">${work.title}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="wk-item-tags">${tagsStr}</span>
+        <div class="wk-item-dot"></div>
+      </div>`;
+    li.addEventListener('click', () => scrollToWork(i));
+    li.addEventListener('mouseenter', () => applyDisplay(i));   // preview on hover
+    li.addEventListener('mouseleave', () => applyDisplay(wkActive)); // restore
+    list.appendChild(li);
+  });
+
+  // Build dot progress indicators
+  const dotsEl = document.getElementById('wk-dots');
+  MY.works.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'wk-dot' + (i === 0 ? ' lit' : '');
+    d.addEventListener('click', () => scrollToWork(i));
+    dotsEl.appendChild(d);
+  });
+
+  // Set initial bottom info
+  document.getElementById('wk-act-name').textContent = MY.works[0].title;
+  document.getElementById('wk-act-tags').textContent = MY.works[0].tags.map(t => `// ${t}`).join(' ');
+  document.getElementById('wk-top-cat').textContent  = (MY.works[0].tags[0] || 'Design') + '.';
+  document.getElementById('wk-act-name').style.transition = 'opacity .22s, transform .22s';
+
+  // Trigger first card when Works enters view
+  const io = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) { applyDisplay(0); io.disconnect(); }
+  }, { threshold: 0.05 });
+  io.observe(sec);
+
+  // Scroll handler
+  let last = -1;
+  window.addEventListener('scroll', () => {
+    const rect = sec.getBoundingClientRect();
+    if (rect.top > window.innerHeight * 0.2 || rect.bottom < 0) return;
+    const scrolledIn = Math.max(0, -rect.top);
+    const perCard    = window.innerHeight * 0.8;
+    const cur        = Math.min(Math.floor(scrolledIn / perCard), N - 1);
+    if (cur !== last) { applyDisplay(cur); last = cur; }
+  }, { passive: true });
+}
+
+/* ══════════════════════════════════════════════════
+   THREE.JS HERO
+══════════════════════════════════════════════════ */
+(function initHero() {
+  const canvas   = document.getElementById('hero-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const scene  = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 200);
+  camera.position.z = 12;
+
+  function makeSprite() {
+    const c=document.createElement('canvas'); c.width=c.height=64;
+    const ctx=c.getContext('2d'), r=32, g=ctx.createRadialGradient(r,r,0,r,r,r);
+    g.addColorStop(0,'rgba(255,255,255,1)'); g.addColorStop(0.3,'rgba(255,255,255,.7)');
+    g.addColorStop(0.7,'rgba(255,255,255,.15)'); g.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle=g; ctx.fillRect(0,0,64,64);
+    return new THREE.CanvasTexture(c);
+  }
+  const sp = makeSprite();
+
+  // Stars
+  (function() {
+    const N=2800, pos=new Float32Array(N*3);
+    for(let i=0;i<N*3;i++) pos[i]=(Math.random()-.5)*160;
+    const geo=new THREE.BufferGeometry();
+    geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+    const stars=new THREE.Points(geo,new THREE.PointsMaterial({size:.18,color:0xffffff,map:sp,transparent:true,opacity:.5,blending:THREE.AdditiveBlending,depthWrite:false}));
+    scene.add(stars);
+    (function r(){requestAnimationFrame(r);stars.rotation.y+=.00008;stars.rotation.x+=.00003;})();
+  })();
+
+  let core=null,glow=null,base=null,scat=null,N=0,t0=null;
+  const lerp=(a,b,t)=>a+(b-a)*t;
+  const easeOutQ=t=>1-Math.pow(1-t,4);
+
+  function buildParticles(text) {
+    const mob=window.innerWidth<600;
+    const cw=mob?480:940, ch=mob?150:230, fs=mob?105:200;
+    const tc=document.createElement('canvas'); tc.width=cw; tc.height=ch;
+    const ctx=tc.getContext('2d');
+    ctx.font=`900 ${fs}px Inter,Arial Black,sans-serif`;
+    ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillStyle='#fff';
+    ctx.fillText(text,cw/2,ch/2);
+    const px=ctx.getImageData(0,0,cw,ch).data;
+    const step=5, pts=[],sc=[],cols=[];
+    for(let y=0;y<ch;y+=step) for(let x=0;x<cw;x+=step) {
+      if(px[((y*cw)+x)*4+3]<128) continue;
+      pts.push((x/cw-.5)*(mob?13:20),-(y/ch-.5)*(mob?3.5:5.5),(Math.random()-.5)*1.5);
+      sc.push((Math.random()-.5)*28,(Math.random()-.5)*16,(Math.random()-.5)*8);
+      const t=x/cw; let cr,cg,cb;
+      if(t<.45)      {const s=t/.45;     cr=lerp(0,.35,s);  cg=lerp(.87,.64,s); cb=1;}
+      else if(t<.75) {const s=(t-.45)/.3; cr=lerp(.35,.74,s);cg=lerp(.64,.54,s); cb=1;}
+      else            {const s=(t-.75)/.25;cr=lerp(.74,.85,s);cg=lerp(.54,.33,s); cb=lerp(1,.9,s);}
+      const b=.85+Math.random()*.15;
+      cols.push(cr*b,cg*b,cb*b);
+    }
+    N=pts.length/3; base=new Float32Array(pts); scat=new Float32Array(sc);
+    const cG=new THREE.BufferGeometry();
+    cG.setAttribute('position',new THREE.BufferAttribute(new Float32Array(pts),3));
+    cG.setAttribute('color',   new THREE.BufferAttribute(new Float32Array(cols),3));
+    core=new THREE.Points(cG,new THREE.PointsMaterial({size:.13,vertexColors:true,map:sp,transparent:true,opacity:.95,blending:THREE.AdditiveBlending,depthWrite:false}));
+    scene.add(core);
+    const gC=new Float32Array(cols.map(v=>v*.45));
+    const gG=new THREE.BufferGeometry();
+    gG.setAttribute('position',new THREE.BufferAttribute(new Float32Array(pts),3));
+    gG.setAttribute('color',   new THREE.BufferAttribute(gC,3));
+    glow=new THREE.Points(gG,new THREE.PointsMaterial({size:.52,vertexColors:true,map:sp,transparent:true,opacity:.2,blending:THREE.AdditiveBlending,depthWrite:false}));
+    scene.add(glow);
+    t0=performance.now();
+  }
+
+  let mTX=0,mTY=0,mCX=0,mCY=0;
+  document.addEventListener('mousemove',e=>{
+    mTX=(e.clientX/window.innerWidth-.5)*.55;
+    mTY=-(e.clientY/window.innerHeight-.5)*.28;
+  });
+
+  function animate(now) {
+    requestAnimationFrame(animate);
+    if(!core){renderer.render(scene,camera);return;}
+    const el=(now-t0)/1000,mt=Math.min(el/2.2,1),me=easeOutQ(mt);
+    const cA=core.geometry.attributes.position.array;
+    const gA=glow.geometry.attributes.position.array;
+    for(let i=0;i<N;i++){
+      const i3=i*3;
+      const bx=base[i3],by=base[i3+1],bz=base[i3+2];
+      const sx=scat[i3],sy=scat[i3+1],sz=scat[i3+2];
+      const ph=el*.7+i*.09;
+      const dx=me*Math.sin(ph)*.07,dy=me*Math.cos(ph*.75)*.05;
+      const fx=lerp(sx,bx,me)+dx,fy=lerp(sy,by,me)+dy,fz=lerp(sz,bz,me);
+      cA[i3]=fx;cA[i3+1]=fy;cA[i3+2]=fz;
+      gA[i3]=fx;gA[i3+1]=fy;gA[i3+2]=fz;
+    }
+    core.geometry.attributes.position.needsUpdate=true;
+    glow.geometry.attributes.position.needsUpdate=true;
+    mCX+=(mTX-mCX)*.05; mCY+=(mTY-mCY)*.05;
+    core.rotation.x=mCY; core.rotation.y=mCX;
+    glow.rotation.x=mCY; glow.rotation.y=mCX;
+    camera.position.x=Math.sin(el*.12)*.15;
+    camera.position.y=Math.cos(el*.09)*.08;
+    camera.lookAt(0,0,0);
+    renderer.render(scene,camera);
+  }
+  animate(performance.now());
+
+  window.addEventListener('resize',()=>{
+    camera.aspect=window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth,window.innerHeight);
+  });
+
+  document.fonts.ready.then(()=>buildParticles(MY.particleText));
+})();
+
+/* ══════════════════════════════════════════════════
+   SCROLL ANIMATIONS (navbar + about reveal)
+══════════════════════════════════════════════════ */
+function initScrollAnim() {
+  const nav = document.getElementById('navbar');
+  window.addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 50), {passive:true});
+
+  const ro = new IntersectionObserver(es => {
+    es.forEach((e,i) => { if(e.isIntersecting){ setTimeout(()=>e.target.classList.add('visible'),i*60); ro.unobserve(e.target); } });
+  }, { threshold: .12 });
+  document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
+}
+
+/* ══════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════ */
+injectContent();
+initWorks();
+document.fonts.ready.then(initScrollAnim);
+</script>
+</body>
+</html>
