@@ -136,32 +136,6 @@
       pointer-events: none;
     }
 
-    /* ── Card wrapper (absolute within canvas) ── */
-    .wk-card-wrap {
-      position: absolute;
-      /* transition applied inline for perf */
-    }
-
-    /* ── Card visual ── */
-    .wk-card {
-      width: 228px;
-      background: #0f1218;
-      border-radius: 11px;
-      border: 1px solid rgba(240,201,110,0.18);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 14px 22px 52px rgba(0,0,0,0.32), 3px 5px 14px rgba(0,0,0,0.18);
-    }
-    .card-top   { display: flex; justify-content: space-between; align-items: flex-start; padding: 12px 12px 6px; flex-shrink: 0; }
-    .card-num   { display: flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 800; color: var(--gold-bright); letter-spacing: .5px; }
-    .card-ctag  { font-size: 9px; font-weight: 700; color: var(--gold-bright); letter-spacing: .8px; border: 1px solid rgba(240,201,110,0.4); padding: 2px 6px; border-radius: 3px; background: rgba(240,201,110,0.08); }
-    .card-img   { flex: 1; min-height: 140px; display: flex; align-items: center; justify-content: center; font-size: 46px; margin: 0 10px; border-radius: 7px; background: #161b22; }
-    .card-bot   { padding: 8px 12px 11px; flex-shrink: 0; }
-    .card-title { font-style: italic; font-weight: 900; font-size: 15px; color: #e8e0d0; letter-spacing: -.4px; margin-bottom: 4px; }
-    .card-tags  { font-size: 8px; color: rgba(240,201,110,0.5); letter-spacing: .6px; margin-bottom: 6px; }
-    .card-bc    { width: 100%; height: 24px; overflow: hidden; }
-
     /* ── Top bar (above cards) ── */
     .wk-topbar {
       position: absolute;
@@ -793,13 +767,10 @@
       <span id="wk-bg-tot">06</span>
     </div>
 
-    <!-- ② Card canvas -->
-    <div class="wk-canvas" id="wk-canvas"></div>
 
     <!-- ③ Top bar -->
     <div class="wk-topbar">
       <span class="wk-sec-label">Interests _</span>
-      <span class="wk-sec-cat" id="wk-top-cat">Design.</span>
     </div>
 
     <!-- ④ Right: minimal list (no dark bg) -->
@@ -841,15 +812,16 @@ const MY = {
   ],
   works: [
     {
-      emoji:"📷", title:"Photography", tags:["Landscape","Portrait"],
-      image:"./images/photography/card.jpg",
+      // emoji:"📷",
+      title:"Photography", 
+      tags:["Landscape","Food", "Portrait"],
+      image:"./src_pic/DSC07951.JPG",
       bg:"linear-gradient(135deg,#e8e0d5,#d5c9b8)",
       detail: {
-        year: "2019 —",
-        desc: "光と影のコントラストを追いかけて、日常の中に潜む静かな美しさを切り取っています。フィルムライクな質感と、余白を大切にした構図が好きです。",
-        items: ["Fujifilm X-T5", "35mm / 50mm", "街撮り・自然風景"],
+        desc: "スマホ以上の写真を撮りたい。その一心で手に取りました。このカメラとレンズが大好きです。",
+        items: ["Sony ZV-E10m2", "Sigma 30mm f1.4"],
         gallery: [
-          { src:"./src_images/camera/オーストリア_トラック", caption:"" },
+          { src:"./src_pic/アイコン_サングラス.png", caption:"" },
           { src:"https://picsum.photos/seed/pf2/900/1200", caption:"" },
           { src:"https://picsum.photos/seed/pf3/900/600", caption:"" },
           { src:"https://picsum.photos/seed/pf4/900/1100", caption:"" },
@@ -858,13 +830,11 @@ const MY = {
       }
     },
     {
-      emoji:"🎬", title:"Cinema", tags:["Arthouse","Indie"],
+      emoji:"🎬", title:"Cinema", tags:["Drama","Romance"],
       image:"./images/cinema/card.jpg",
       bg:"linear-gradient(135deg,#1a1a2e,#2d2d44)",
       detail: {
-        year: "All time",
-        desc: "ストーリーよりも、空気感や色彩に惹かれます。台詞が少なく、沈黙が語る映画が好きです。",
-        items: ["Wong Kar-wai", "Sofia Coppola", "Wim Wenders", "ゴダール"],
+        desc: "人情あふれるストーリーの映画が好きです。Wonderは何度観ても泣いてしまいます。",
         gallery: [
           { src:"https://picsum.photos/seed/cm1/900/560", caption:"In the Mood for Love" },
           { src:"https://picsum.photos/seed/cm2/900/560", caption:"Lost in Translation" },
@@ -875,13 +845,11 @@ const MY = {
       }
     },
     {
-      emoji:"🎵", title:"Sounds", tags:["Jazz","Ambient"],
+      emoji:"🎵", title:"Sounds", tags:["Radwimps","SIRUP","TOMOO", "Wagner"],
       image:"./images/sounds/card.jpg",
       bg:"linear-gradient(135deg,#e0e8f0,#c8d8e8)",
       detail: {
-        year: "Always on",
-        desc: "気分や時間帯によって聴くものが変わります。集中したいときはアンビエント、気持ちを上げたいときはジャズやシティポップ。",
-        items: ["Bill Evans", "Nujabes", "細野晴臣", "Brian Eno"],
+        desc: "Radwimpsは昔から好きです。集中したいときにはクラシックを聴きます。",
         gallery: [
           { src:"https://picsum.photos/seed/sn1/900/900", caption:"Bill Evans — Waltz for Debby" },
           { src:"https://picsum.photos/seed/sn2/900/900", caption:"Nujabes — Modal Soul" },
@@ -891,13 +859,11 @@ const MY = {
       }
     },
     {
-      emoji:"🍶", title:"Alcohol", tags:["Sake","Wine"],
+      emoji:"🍶", title:"Alcohol", tags:["Japanese sake","Wine"],
       image:"./images/alcohol/card.jpg",
       bg:"linear-gradient(135deg,#f5f0e8,#e8ddd0)",
       detail: {
-        year: "Always",
-        desc: "日本酒を中心に、ワインやウイスキーも。産地や造り手の背景を知ると、一杯がより深く楽しめます。",
-        items: ["日本酒", "ワイン", "ウイスキー", "クラフトビール"],
+        desc: "作られた土地で飲んで土地柄まで含めて知ることが好きです。",
         gallery: [
           { src:"https://picsum.photos/seed/al1/900/600", caption:"" },
           { src:"https://picsum.photos/seed/al2/900/1100", caption:"" },
@@ -960,49 +926,8 @@ function injectContent() {
 ══════════════════════════════════════════════════ */
 let wkActive = 0;
 
-function buildCardEl(work, idx) {
-  const num  = String(idx+1).padStart(2,'0');
-  const tag  = work.tags[0].toUpperCase();
-  const tags = work.tags.map(t=>`[${t.toUpperCase()}]`).join(' ');
-  const bc   = barcode(work.title, 204, 24);
-  const imgContent = work.image
-    ? `<img src="${work.image}" alt="${work.title}" style="width:100%;height:100%;object-fit:cover;display:block;" />`
-    : `<span style="font-size:46px">${work.emoji}</span>`;
-  const div  = document.createElement('div');
-  div.className = 'wk-card';
-  div.innerHTML = `
-    <div class="card-top">
-      <div class="card-num">▲ ${num}</div>
-      <div class="card-ctag">[${tag}]</div>
-    </div>
-    <div class="card-img" style="background:${work.bg}">${imgContent}</div>
-    <div class="card-bot">
-      <div class="card-title">${work.title}</div>
-      <div class="card-tags">${tags}</div>
-      <div class="card-bc">${bc}</div>
-    </div>`;
-  return div;
-}
 
-function showCard(i, isNewest) {
-  const wrap = document.getElementById(`ww${i}`);
-  if (!wrap) return;
-  const s = SLOTS[i];
-  wrap.style.opacity   = isNewest ? '1' : '0.72';
-  wrap.style.transform = `translate(${s.l}%, ${s.t}%) rotate(${s.r}deg)`;
-  wrap.style.zIndex    = isNewest ? '15' : String(4 + i);
-  wrap.style.filter    = isNewest ? 'none' : 'brightness(0.9)';
-}
 
-function hideCard(i) {
-  const wrap = document.getElementById(`ww${i}`);
-  if (!wrap) return;
-  const s = SLOTS[i];
-  wrap.style.opacity   = '0';
-  wrap.style.transform = `${FLY[i]} rotate(${s.r}deg)`;
-  wrap.style.zIndex    = String(4 + i);
-  wrap.style.filter    = 'none';
-}
 
 function setActive(idx) {
   wkActive = idx;
@@ -1012,8 +937,6 @@ function setActive(idx) {
   // Background counter
   document.getElementById('wk-bg-cur').textContent = n;
 
-  // Top category
-  document.getElementById('wk-top-cat').textContent = (work.tags[0] || 'Design') + '.';
 
   // Bottom info — animate out → in
   const nameEl = document.getElementById('wk-act-name');
@@ -1035,10 +958,6 @@ function setActive(idx) {
 function applyDisplay(target) {
   const N = MY.works.length;
   target = Math.max(0, Math.min(N-1, target));
-  for (let i = 0; i < N; i++) {
-    if (i <= target) showCard(i, i === target);
-    else             hideCard(i);
-  }
   setActive(target);
 }
 
@@ -1054,28 +973,6 @@ function initWorks() {
   sec.style.height = `${N * 80 + 20}vh`;
 
   document.getElementById('wk-bg-tot').textContent = String(N).padStart(2,'0');
-
-  // Build card wrappers (all hidden initially)
-  const canvas = document.getElementById('wk-canvas');
-  MY.works.forEach((work, i) => {
-    const s    = SLOTS[i];
-    const wrap = document.createElement('div');
-    wrap.className = 'wk-card-wrap';
-    wrap.id        = `ww${i}`;
-    // Start in fly-in position (hidden)
-    wrap.style.cssText = `
-      top: 0; left: 0;
-      opacity: 0;
-      transform: ${FLY[i]} rotate(${s.r}deg);
-      z-index: ${4+i};
-      transition: transform 0.88s cubic-bezier(0.16,1,0.3,1), opacity 0.55s ease, filter 0.3s;
-    `;
-    const cardEl = buildCardEl(work, i);
-    cardEl.style.cursor = 'pointer';
-    cardEl.addEventListener('click', () => openDetail(i));
-    wrap.appendChild(cardEl);
-    canvas.appendChild(wrap);
-  });
 
   // Build project list
   const list = document.getElementById('wk-list');
@@ -1110,7 +1007,6 @@ function initWorks() {
   // Set initial bottom info
   document.getElementById('wk-act-name').textContent = MY.works[0].title;
   document.getElementById('wk-act-tags').textContent = MY.works[0].tags.map(t => `// ${t}`).join(' ');
-  document.getElementById('wk-top-cat').textContent  = (MY.works[0].tags[0] || 'Design') + '.';
   document.getElementById('wk-act-name').style.transition = 'opacity .22s, transform .22s';
 
   // Trigger first card when Works enters view
@@ -1342,22 +1238,33 @@ initWorks();
   function openDetail(idx) {
     current = idx;
     const w = MY.works[idx];
-    const d = w.detail;
+    const d = w.detail || {};
     const n = String(idx+1).padStart(2,'0');
     const tot = String(MY.works.length).padStart(2,'0');
 
-    hero.style.background = w.bg;
-    emoji.textContent     = w.emoji;
+    if (w.image) {
+      hero.style.backgroundImage = `linear-gradient(rgba(8,10,15,0.25), rgba(8,10,15,0.45)), url("${w.image}")`;
+      hero.style.backgroundSize = 'cover';
+      hero.style.backgroundPosition = 'center';
+      hero.style.backgroundRepeat = 'no-repeat';
+      hero.style.backgroundColor = '#0d1117';
+      emoji.textContent = '';
+    } else {
+      hero.style.backgroundImage = 'none';
+      hero.style.background = w.bg;
+      emoji.textContent = w.emoji || '';
+    }
     heroNum.textContent   = n + ' / ' + tot;
     title.textContent     = w.title;
-    year.textContent      = d.year;
-    desc.textContent      = d.desc;
+    year.textContent      = d.year || '';
+    desc.textContent      = d.desc || '';
 
     tags.innerHTML = w.tags.map(t =>
       '<span class="dp-tag">' + t + '</span>'
     ).join('');
 
-    items.innerHTML = d.items.map(it =>
+    const itemList = Array.isArray(d.items) ? d.items : [];
+    items.innerHTML = itemList.map(it =>
       '<div class="dp-item">' + it + '</div>'
     ).join('');
 
@@ -1365,7 +1272,7 @@ initWorks();
     galleryEl.innerHTML =
       '<div class="dp-gallery-label">Gallery</div>' +
       '<div class="dg-grid">' +
-      d.gallery.map(function(img) {
+      (Array.isArray(d.gallery) ? d.gallery : []).map(function(img) {
         return '<div class="dg-item" data-src="' + img.src + '">' +
           '<img src="' + img.src + '" alt="' + (img.caption||'') + '" loading="lazy" />' +
           (img.caption ? '<div class="dg-caption">' + img.caption + '</div>' : '') +
